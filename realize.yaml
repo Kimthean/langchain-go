@@ -1,0 +1,23 @@
+# realize.yaml
+settings:
+  legacy:
+    force: false
+    interval: 0s
+schema:
+  - name: langchain-chat-agent
+    paths:
+      - /
+    commands:
+      install:
+        status: ""
+      run:
+        status: "Running..."
+    watcher:
+      extensions:
+        - go
+      paths:
+        - /
+      ignored_paths:
+        - .git
+        - .realize
+        - .vscode
