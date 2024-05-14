@@ -1,8 +1,8 @@
 build: 
-	@go build -o bin/go-ecom cmd/main.go
+	@go build -o bin/langchain-go cmd/main.go
 
 test:
 	@go test -v ./...
 
 run: build
-	@./bin/go-ecom
+	@./bin/langchain-go

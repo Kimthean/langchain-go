@@ -1,0 +1,27 @@
+version: "3.1"
+
+services:
+  pgdb:
+    image: postgres:13.3-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: langchain-go
+      POSTGRES_PASSWORD: langchain-go
+      POSTGRES_DB: langchain-go
+    ports:
+      - 5432:5432
+    networks:
+      - default
+
+  pgadmin:
+    image: dpage/pgadmin4
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: "pgadmin4@pgadmin.org"
+      PGADMIN_DEFAULT_PASSWORD: "admin"
+    ports:
+      - 5050:80
+    depends_on:
+      - pgdb
+    networks:
+      - default
