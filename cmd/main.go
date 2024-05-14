@@ -1,41 +1,36 @@
 package main
 
 import (
-    "log"
-    "os"
-    "os/signal"
-	"net/http"
+	"log"
 
-    "github.com/gin-gonic/gin"
-    
+	docs "github.com/Kimthean/go-chat/cmd/docs"
+	swaggerfiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
+
+	"github.com/Kimthean/go-chat/internal/database"
+	"github.com/Kimthean/go-chat/internal/handlers"
+	"github.com/gin-gonic/gin"
 )
 
 func main() {
-    r := gin.Default()
+	if err := database.Connect(); err != nil {
+		log.Fatalf("Failed to connect to database: %v", err)
+	}
 
-    // Set up routes
-    r.POST("/upload", func(c *gin.Context) {
-		// Upload file
-	})
+	r := gin.Default()
+	docs.SwaggerInfo.Title = "Go Chat"
+	docs.SwaggerInfo.Description = "A simple chat application"
+	docs.SwaggerInfo.Version = "1.0"
+	docs.SwaggerInfo.BasePath = "/api/v1"
+	v1 := r.Group("/api/v1")
+	{
+		auth := v1.Group("/auth")
+		{
+			auth.POST("/signup", handlers.SignUpHandler)
+			auth.POST("/login", handlers.LoginHandler)
+		}
+	}
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 
-    // r.GET("/chat", )
-
-    // Start the server
-    srv := &http.Server{
-        Addr:    ":8080",
-        Handler: r,
-    }
- 			   go func() {
-        if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-            log.Fatalf("Failed to start server: %v", err)
-        }
-    }()
-
-quit := make(chan os.Signal, 1)
-signal.Notify(quit, os.Interrupt)
-<-quit
-log.Println("Shutting down server...")
-
-if err := srv.Close(); err != nil {
-	log.Fatalf("Error shutting down server: %v", err)
+	r.Run(":8080")
 }
