@@ -5,7 +5,7 @@ import (
 	"github.com/Kimthean/go-chat/internal/models"
 )
 
-func CreateUser(username, email, password string) (*models.User, error) {
+func CreateUser(username, email, password string) error {
 	db := database.DB
 
 	user := &models.User{
@@ -16,10 +16,10 @@ func CreateUser(username, email, password string) (*models.User, error) {
 
 	result := db.Create(user)
 	if result.Error != nil {
-		return nil, result.Error
+		return result.Error
 	}
 
-	return user, nil
+	return nil
 }
 
 func GetUserByEmail(email string) (*models.User, error) {

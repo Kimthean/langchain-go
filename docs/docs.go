@@ -9,13 +9,14 @@ const docTemplate = `{
     "info": {
         "description": "{{escape .Description}}",
         "title": "{{.Title}}",
+        "termsOfService": "http://swagger.io/terms/",
         "contact": {},
         "version": "{{.Version}}"
     },
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/login": {
+        "/auth/login": {
             "post": {
                 "description": "Log in a user with email and password",
                 "consumes": [
@@ -25,7 +26,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "users"
+                    "auth"
                 ],
                 "summary": "Log in a user",
                 "parameters": [
@@ -35,7 +36,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/types.LoginRequest"
+                            "$ref": "#/definitions/github_com_Kimthean_go-chat_internal_types.LoginRequest"
                         }
                     }
                 ],
@@ -43,19 +44,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/types.ErrorResponse"
+                            "$ref": "#/definitions/github_com_Kimthean_go-chat_internal_types.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/types.ErrorResponse"
+                            "$ref": "#/definitions/github_com_Kimthean_go-chat_internal_types.ErrorResponse"
                         }
                     }
                 }
             }
         },
-        "/signup": {
+        "/auth/signup": {
             "post": {
                 "consumes": [
                     "application/json"
@@ -64,7 +65,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "users"
+                    "auth"
                 ],
                 "summary": "Sign up a new user",
                 "parameters": [
@@ -74,7 +75,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/types.LoginRequest"
+                            "$ref": "#/definitions/github_com_Kimthean_go-chat_internal_types.SignUpRequest"
                         }
                     }
                 ],
@@ -82,21 +83,38 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/types.ErrorResponse"
+                            "$ref": "#/definitions/github_com_Kimthean_go-chat_internal_types.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/types.ErrorResponse"
+                            "$ref": "#/definitions/github_com_Kimthean_go-chat_internal_types.ErrorResponse"
                         }
                     }
                 }
             }
+        },
+        "/user/me": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "get user details",
+                "responses": {}
+            }
         }
     },
     "definitions": {
-        "types.ErrorResponse": {
+        "github_com_Kimthean_go-chat_internal_types.ErrorResponse": {
             "type": "object",
             "properties": {
                 "error": {
@@ -104,7 +122,18 @@ const docTemplate = `{
                 }
             }
         },
-        "types.LoginRequest": {
+        "github_com_Kimthean_go-chat_internal_types.LoginRequest": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_Kimthean_go-chat_internal_types.SignUpRequest": {
             "type": "object",
             "properties": {
                 "email": {
@@ -118,17 +147,24 @@ const docTemplate = `{
                 }
             }
         }
+    },
+    "securityDefinitions": {
+        "Bearer": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        }
     }
 }`
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "",
-	Host:             "",
-	BasePath:         "",
+	Version:          "1.0",
+	Host:             "localhost:8080",
+	BasePath:         "/api/v1",
 	Schemes:          []string{},
-	Title:            "",
-	Description:      "",
+	Title:            "LangChain Go RAG Agent API",
+	Description:      "Langchain go RAG agent API.",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

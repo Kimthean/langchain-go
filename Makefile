@@ -6,3 +6,6 @@ test:
 
 run: build
 	@./bin/langchain-go
+
+watch:
+	find . -name "*.go" | entr -r make run

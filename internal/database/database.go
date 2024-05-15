@@ -24,18 +24,13 @@ func Connect() error {
 		return fmt.Errorf("DATABASE_URL environment variable is not set")
 	}
 
-	DB, err = gorm.Open(postgres.Open(connStr), &gorm.Config{})
+	DB, err = gorm.Open(postgres.Open(connStr), &gorm.Config{TranslateError: true})
 	if err != nil {
 		return err
 	}
 
 	log.Println("Connected to PostgreSQL database")
 
-	// Migrate models
-	err = DB.Migrator().DropTable(&models.User{})
-	if err != nil {
-		return err
-	}
 	err = models.MigrateUserModels(DB)
 	if err != nil {
 		return err

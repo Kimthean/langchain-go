@@ -1,10 +1,18 @@
+basePath: /api/v1
 definitions:
-  types.ErrorResponse:
+  github_com_Kimthean_go-chat_internal_types.ErrorResponse:
     properties:
       error:
         type: string
     type: object
-  types.LoginRequest:
+  github_com_Kimthean_go-chat_internal_types.LoginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    type: object
+  github_com_Kimthean_go-chat_internal_types.SignUpRequest:
     properties:
       email:
         type: string
@@ -13,10 +21,15 @@ definitions:
       username:
         type: string
     type: object
+host: localhost:8080
 info:
   contact: {}
+  description: Langchain go RAG agent API.
+  termsOfService: http://swagger.io/terms/
+  title: LangChain Go RAG Agent API
+  version: "1.0"
 paths:
-  /login:
+  /auth/login:
     post:
       consumes:
       - application/json
@@ -27,22 +40,22 @@ paths:
         name: user
         required: true
         schema:
-          $ref: '#/definitions/types.LoginRequest'
+          $ref: '#/definitions/github_com_Kimthean_go-chat_internal_types.LoginRequest'
       produces:
       - application/json
       responses:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/types.ErrorResponse'
+            $ref: '#/definitions/github_com_Kimthean_go-chat_internal_types.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/types.ErrorResponse'
+            $ref: '#/definitions/github_com_Kimthean_go-chat_internal_types.ErrorResponse'
       summary: Log in a user
       tags:
-      - users
-  /signup:
+      - auth
+  /auth/signup:
     post:
       consumes:
       - application/json
@@ -52,19 +65,34 @@ paths:
         name: user
         required: true
         schema:
-          $ref: '#/definitions/types.LoginRequest'
+          $ref: '#/definitions/github_com_Kimthean_go-chat_internal_types.SignUpRequest'
       produces:
       - application/json
       responses:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/types.ErrorResponse'
+            $ref: '#/definitions/github_com_Kimthean_go-chat_internal_types.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/types.ErrorResponse'
+            $ref: '#/definitions/github_com_Kimthean_go-chat_internal_types.ErrorResponse'
       summary: Sign up a new user
       tags:
-      - users
+      - auth
+  /user/me:
+    get:
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - Bearer: []
+      summary: get user details
+      tags:
+      - user
+securityDefinitions:
+  Bearer:
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"
