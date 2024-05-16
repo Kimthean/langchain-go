@@ -5,6 +5,7 @@ import (
 
 	"github.com/Kimthean/go-chat/internal/database"
 	"github.com/Kimthean/go-chat/internal/models"
+	"github.com/google/uuid"
 )
 
 func CreateUser(username, email, password string) error {
@@ -41,7 +42,7 @@ func GetUserByID(id string) (*models.User, error) {
 	db := database.DB
 	var user models.User
 
-	result := db.Preload("Sessions").Where("id = ?", id).First(&user)
+	result := db.Where("id = ?", id).First(&user)
 	if result.Error != nil {
 		return nil, result.Error
 	}
@@ -66,7 +67,6 @@ func CreateOrUpdateSession(session *models.Session) error {
 	return nil
 }
 
-
 func GetSessionByToken(token string) (*models.Session, error) {
 	db := database.DB
 
@@ -75,6 +75,17 @@ func GetSessionByToken(token string) (*models.Session, error) {
 		return nil, err
 	}
 	return &session, nil
+}
+
+func GetSessionById(userId uuid.UUID) (*models.Session, error) {
+	db := database.DB
+
+	var session models.Session
+	if err := db.Where("user_id = ?", userId).First(&session).Error; err != nil {
+		return nil, err
+	}
+	return &session, nil
+
 }
 
 func DeleteSession(token string) error {

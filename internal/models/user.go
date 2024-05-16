@@ -16,14 +16,14 @@ type Base struct {
 type User struct {
 	Base
 	Username string
-	Email    string    `gorm:"uniqueIndex"`
-	Password string    `json:"-"`
-	Sessions []Session `gorm:"foreignKey:UserID;references:ID"`
+	Email    string  `gorm:"uniqueIndex"`
+	Password string  `json:"-"`
+	Session  Session `gorm:"foreignKey:UserID;references:ID" json:"-"`
 }
 
 type Session struct {
 	Base
-	UserID uuid.UUID `gorm:"type:uuid"`
+	UserID uuid.UUID `gorm:"type:uuid;unique"`
 	Token  string
 }
 

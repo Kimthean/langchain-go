@@ -18,11 +18,12 @@ import (
 // @version         1.0
 // @description     Langchain go RAG agent API.
 // @termsOfService  http://swagger.io/terms/
-// @host      localhost:8080
-// @BasePath  /api/v1
+// @host            localhost:8080
+// @BasePath        /api/v1
 // @securityDefinitions.apiKey Bearer
 // @in header
 // @name Authorization
+// @scheme Bearer
 func main() {
 	if err := database.Connect(); err != nil {
 		log.Fatalf("Failed to connect to database: %v", err)
@@ -46,7 +47,7 @@ func main() {
 			auththentication.POST("/signup", auth.SignUpHandler)
 			auththentication.POST("/login", auth.LoginHandler)
 			auththentication.POST("/refresh", auth.RefreshTokenHandler)
-			auththentication.POST("/logout", auth.LogoutHandler)
+			auththentication.POST("/logout", middleware.AuthMiddleware(), auth.LogoutHandler)
 		}
 		user := v1.Group("/user", middleware.AuthMiddleware())
 		{

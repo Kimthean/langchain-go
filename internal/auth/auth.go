@@ -10,6 +10,7 @@ import (
 	"github.com/Kimthean/go-chat/internal/types"
 	"github.com/Kimthean/go-chat/internal/utils"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
@@ -160,27 +161,28 @@ func RefreshTokenHandler(c *gin.Context) {
 // @Security Bearer
 // @Produce  json
 // @Router /auth/logout [post]
-func LogoutHandler(c *gin.Context) {
-	token := c.GetHeader("Authorization")
-	if token == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "No token provided"})
+func LogoutHandler(g *gin.Context) {
+
+	userId, exist := g.Get("userID")
+	if !exist {
+		g.JSON(http.StatusUnauthorized, gin.H{"error": "User not authenticated"})
 		return
 	}
 
-	session, err := repository.GetSessionByToken(token)
+	session, err := repository.GetSessionById(userId.(uuid.UUID))
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
+			g.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
 		} else {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
+			g.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
 		}
 		return
 	}
 
 	if err := repository.DeleteSession(session.Token); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete session"})
+		g.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete session"})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "Logged out"})
+	g.JSON(http.StatusOK, gin.H{"message": "Logged out"})
 }

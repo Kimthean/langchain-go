@@ -12,6 +12,7 @@ import (
 // @Router /user/me [get]
 func GetUserDetails(g *gin.Context) {
 	user, exist := g.Get("user")
+	userId, _ := g.Get("userID")
 	if !exist {
 		g.JSON(500, gin.H{
 			"error": "Failed to get user",
@@ -20,6 +21,7 @@ func GetUserDetails(g *gin.Context) {
 	}
 
 	g.JSON(200, gin.H{
-		"data": user,
+		"data":   user,
+		"userId": userId,
 	})
 }
