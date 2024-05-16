@@ -1,8 +1,6 @@
 package handlers
 
 import (
-	"fmt"
-
 	"github.com/gin-gonic/gin"
 )
 
@@ -13,8 +11,15 @@ import (
 // @Security Bearer
 // @Router /user/me [get]
 func GetUserDetails(g *gin.Context) {
-	fmt.Println("User details")
+	user, exist := g.Get("user")
+	if !exist {
+		g.JSON(500, gin.H{
+			"error": "Failed to get user",
+		})
+		return
+	}
+
 	g.JSON(200, gin.H{
-		"message": "User details",
+		"data": user,
 	})
 }

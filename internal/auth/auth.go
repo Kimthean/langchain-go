@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/Kimthean/go-chat/internal/models"
 	"github.com/Kimthean/go-chat/internal/repository"
 	"github.com/Kimthean/go-chat/internal/types"
 	"github.com/Kimthean/go-chat/internal/utils"
@@ -22,8 +23,6 @@ type Response struct {
 // @Accept  json
 // @Produce  json
 // @Param user body types.SignUpRequest true "Sign up user"
-// @Failure 400 {object} types.ErrorResponse
-// @Failure 500 {object} types.ErrorResponse
 // @Router /auth/signup [post]
 func SignUpHandler(c *gin.Context) {
 	var req types.SignUpRequest
@@ -59,11 +58,10 @@ func SignUpHandler(c *gin.Context) {
 // @Accept  json
 // @Produce  json
 // @Param user body types.LoginRequest true "Login user"
-// @Failure 400 {object} types.ErrorResponse
-// @Failure 500 {object} types.ErrorResponse
 // @Router /auth/login [post]
 func LoginHandler(c *gin.Context) {
 	var req types.LoginRequest
+
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
 		return
@@ -72,7 +70,7 @@ func LoginHandler(c *gin.Context) {
 	user, err := repository.GetUserByEmail(req.Email)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
+			c.JSON(http.StatusNotFound, gin.H{"error": "Please sign up first"})
 		} else {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
 		}
@@ -90,9 +88,99 @@ func LoginHandler(c *gin.Context) {
 		return
 	}
 
+	session := models.Session{
+		UserID: user.ID,
+		Token:  refreshToken,
+	}
+
+	if err := repository.CreateOrUpdateSession(&session); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create session"})
+		return
+	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"access_token":  accessToken,
 		"refresh_token": refreshToken,
 	})
 }
 
+// RefreshTokenHandler godoc
+// @Summary Refresh access token
+// @Tags auth
+// @Accept  json
+// @Produce  json
+// @Param token body types.RefreshTokenRequest true "Refresh token"
+// @Router /auth/refresh [post]
+func RefreshTokenHandler(c *gin.Context) {
+	var req types.RefreshTokenRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
+		return
+	}
+
+	fmt.Println(req.RefreshToken)
+
+	session, err := repository.GetSessionByToken(req.RefreshToken)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid refresh token"})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
+		}
+		return
+	}
+
+	claims, err := utils.ValidateToken(req.RefreshToken)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid refresh token"})
+		return
+	}
+
+	accessToken, refreshToken, err := utils.GenerateTokens(claims.UserID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate tokens"})
+		return
+	}
+
+	session.Token = refreshToken
+	if err := repository.CreateOrUpdateSession(session); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update session"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"access_token":  accessToken,
+		"refresh_token": refreshToken,
+	})
+}
+
+// LogoutHandler godoc
+// @Summary Log out a user
+// @Tags auth
+// @Security Bearer
+// @Produce  json
+// @Router /auth/logout [post]
+func LogoutHandler(c *gin.Context) {
+	token := c.GetHeader("Authorization")
+	if token == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "No token provided"})
+		return
+	}
+
+	session, err := repository.GetSessionByToken(token)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
+		}
+		return
+	}
+
+	if err := repository.DeleteSession(session.Token); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete session"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Logged out"})
+}

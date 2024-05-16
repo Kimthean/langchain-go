@@ -1,16 +1,21 @@
 basePath: /api/v1
 definitions:
-  github_com_Kimthean_go-chat_internal_types.ErrorResponse:
-    properties:
-      error:
-        type: string
-    type: object
   github_com_Kimthean_go-chat_internal_types.LoginRequest:
     properties:
       email:
         type: string
       password:
         type: string
+    required:
+    - email
+    - password
+    type: object
+  github_com_Kimthean_go-chat_internal_types.RefreshTokenRequest:
+    properties:
+      refresh_token:
+        type: string
+    required:
+    - refresh_token
     type: object
   github_com_Kimthean_go-chat_internal_types.SignUpRequest:
     properties:
@@ -20,6 +25,10 @@ definitions:
         type: string
       username:
         type: string
+    required:
+    - email
+    - password
+    - username
     type: object
 host: localhost:8080
 info:
@@ -43,16 +52,35 @@ paths:
           $ref: '#/definitions/github_com_Kimthean_go-chat_internal_types.LoginRequest'
       produces:
       - application/json
-      responses:
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/github_com_Kimthean_go-chat_internal_types.ErrorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/github_com_Kimthean_go-chat_internal_types.ErrorResponse'
+      responses: {}
       summary: Log in a user
+      tags:
+      - auth
+  /auth/logout:
+    post:
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - Bearer: []
+      summary: Log out a user
+      tags:
+      - auth
+  /auth/refresh:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Refresh token
+        in: body
+        name: token
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_Kimthean_go-chat_internal_types.RefreshTokenRequest'
+      produces:
+      - application/json
+      responses: {}
+      summary: Refresh access token
       tags:
       - auth
   /auth/signup:
@@ -68,15 +96,7 @@ paths:
           $ref: '#/definitions/github_com_Kimthean_go-chat_internal_types.SignUpRequest'
       produces:
       - application/json
-      responses:
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/github_com_Kimthean_go-chat_internal_types.ErrorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/github_com_Kimthean_go-chat_internal_types.ErrorResponse'
+      responses: {}
       summary: Sign up a new user
       tags:
       - auth

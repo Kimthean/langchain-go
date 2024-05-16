@@ -40,20 +40,50 @@ const docTemplate = `{
                         }
                     }
                 ],
-                "responses": {
-                    "400": {
-                        "description": "Bad Request",
+                "responses": {}
+            }
+        },
+        "/auth/logout": {
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Log out a user",
+                "responses": {}
+            }
+        },
+        "/auth/refresh": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Refresh access token",
+                "parameters": [
+                    {
+                        "description": "Refresh token",
+                        "name": "token",
+                        "in": "body",
+                        "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_Kimthean_go-chat_internal_types.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_Kimthean_go-chat_internal_types.ErrorResponse"
+                            "$ref": "#/definitions/github_com_Kimthean_go-chat_internal_types.RefreshTokenRequest"
                         }
                     }
-                }
+                ],
+                "responses": {}
             }
         },
         "/auth/signup": {
@@ -79,20 +109,7 @@ const docTemplate = `{
                         }
                     }
                 ],
-                "responses": {
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_Kimthean_go-chat_internal_types.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_Kimthean_go-chat_internal_types.ErrorResponse"
-                        }
-                    }
-                }
+                "responses": {}
             }
         },
         "/user/me": {
@@ -114,16 +131,12 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "github_com_Kimthean_go-chat_internal_types.ErrorResponse": {
-            "type": "object",
-            "properties": {
-                "error": {
-                    "type": "string"
-                }
-            }
-        },
         "github_com_Kimthean_go-chat_internal_types.LoginRequest": {
             "type": "object",
+            "required": [
+                "email",
+                "password"
+            ],
             "properties": {
                 "email": {
                     "type": "string"
@@ -133,8 +146,24 @@ const docTemplate = `{
                 }
             }
         },
+        "github_com_Kimthean_go-chat_internal_types.RefreshTokenRequest": {
+            "type": "object",
+            "required": [
+                "refresh_token"
+            ],
+            "properties": {
+                "refresh_token": {
+                    "type": "string"
+                }
+            }
+        },
         "github_com_Kimthean_go-chat_internal_types.SignUpRequest": {
             "type": "object",
+            "required": [
+                "email",
+                "password",
+                "username"
+            ],
             "properties": {
                 "email": {
                     "type": "string"

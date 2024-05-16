@@ -28,6 +28,11 @@ func main() {
 		log.Fatalf("Failed to connect to database: %v", err)
 	}
 
+	// db := database.DB
+
+	// db.Migrator().DropTable(&models.User{}, &models.Session{})
+	// db.AutoMigrate(&models.User{}, &models.Session{})
+
 	r := gin.Default()
 	docs.SwaggerInfo.Title = "Go Chat"
 	docs.SwaggerInfo.Description = "A simple chat application"
@@ -40,6 +45,8 @@ func main() {
 		{
 			auththentication.POST("/signup", auth.SignUpHandler)
 			auththentication.POST("/login", auth.LoginHandler)
+			auththentication.POST("/refresh", auth.RefreshTokenHandler)
+			auththentication.POST("/logout", auth.LogoutHandler)
 		}
 		user := v1.Group("/user", middleware.AuthMiddleware())
 		{

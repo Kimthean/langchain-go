@@ -5,7 +5,6 @@ import (
 	"log"
 	"os"
 
-	"github.com/Kimthean/go-chat/internal/models"
 	"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -30,11 +29,6 @@ func Connect() error {
 	}
 
 	log.Println("Connected to PostgreSQL database")
-
-	err = models.MigrateUserModels(DB)
-	if err != nil {
-		return err
-	}
 
 	return nil
 }
