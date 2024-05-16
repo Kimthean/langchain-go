@@ -52,6 +52,7 @@ func main() {
 		user := v1.Group("/user", middleware.AuthMiddleware())
 		{
 			user.GET("/me", handlers.GetUserDetails)
+			user.POST("/profile", handlers.UploadProfileImage)
 		}
 	}
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler, ginSwagger.PersistAuthorization(true)))

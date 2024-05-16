@@ -15,10 +15,11 @@ type Base struct {
 
 type User struct {
 	Base
-	Username string
-	Email    string  `gorm:"uniqueIndex"`
-	Password string  `json:"-"`
-	Session  Session `gorm:"foreignKey:UserID;references:ID" json:"-"`
+	Username   string
+	Email      string   `gorm:"uniqueIndex"`
+	Password   string   `json:"-"`
+	ProfileUrl *string  `json:"profileUrl"`
+	Session    *Session `gorm:"foreignKey:UserID;references:ID" json:"-"`
 }
 
 type Session struct {

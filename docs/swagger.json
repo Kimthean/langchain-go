@@ -122,6 +122,32 @@
                 "summary": "get user details",
                 "responses": {}
             }
+        },
+        "/user/profile": {
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "upload profile image",
+                "parameters": [
+                    {
+                        "type": "file",
+                        "description": "Profile Image",
+                        "name": "file",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
         }
     },
     "definitions": {

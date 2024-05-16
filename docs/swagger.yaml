@@ -110,6 +110,22 @@ paths:
       summary: get user details
       tags:
       - user
+  /user/profile:
+    post:
+      parameters:
+      - description: Profile Image
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - Bearer: []
+      summary: upload profile image
+      tags:
+      - user
 securityDefinitions:
   Bearer:
     in: header

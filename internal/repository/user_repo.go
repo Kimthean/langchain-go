@@ -38,6 +38,17 @@ func GetUserByEmail(email string) (*models.User, error) {
 	return user, nil
 }
 
+func UpdateUser(user *models.User) error {
+	db := database.DB
+
+	result := db.Model(user).Updates(user)
+	if result.Error != nil {
+		return result.Error
+	}
+
+	return nil
+}
+
 func GetUserByID(id string) (*models.User, error) {
 	db := database.DB
 	var user models.User
